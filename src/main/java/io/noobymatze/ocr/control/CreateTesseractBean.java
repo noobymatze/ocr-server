@@ -9,7 +9,10 @@ public class CreateTesseractBean {
 
     @Bean
     public Tesseract createInstance() {
-        return new Tesseract();
+        Tesseract instance = new Tesseract();
+        instance.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
+        instance.setLanguage("deu");
+        return instance;
     }
 
 }

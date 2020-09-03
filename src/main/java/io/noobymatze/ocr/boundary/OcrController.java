@@ -31,7 +31,8 @@ public class OcrController {
     )
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String analyzeFile(@RequestBody MultipartFile multipartFile) throws IOException, TesseractException {
-        return analyzeService.analyze(multipartFile.getName(), multipartFile.getInputStream());
+        LOGGER.log(Level.INFO, "Analyzing {0}", multipartFile.getOriginalFilename());
+        return analyzeService.analyze(multipartFile.getOriginalFilename(), multipartFile.getInputStream());
     }
 
     @ExceptionHandler({IOException.class})

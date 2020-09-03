@@ -49,6 +49,11 @@
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.4.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.jai-imageio</groupId>
+            <artifactId>jai-imageio-core</artifactId>
+            <version>1.4.0</version>
+        </dependency>
     </dependencies>
 
 	<build>
