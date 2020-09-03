@@ -1,14 +1,16 @@
 package io.noobymatze.ocr.boundary;
 
-import io.noobymatze.ocr.control.AnalyzeService;
+import io.noobymatze.ocr.control.OcrParser;
 import io.noobymatze.ocr.entity.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
-import net.sourceforge.tess4j.TesseractException;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -20,19 +22,19 @@ public class OcrController {
 
     private static final Logger LOGGER = Logger.getLogger(OcrController.class.getName());
 
-    private final AnalyzeService analyzeService;
+    private final OcrParser parser;
 
-    public OcrController(AnalyzeService analyzeService) {
-        this.analyzeService = analyzeService;
+    public OcrController(OcrParser parser) {
+        this.parser = parser;
     }
 
     @Operation(
         summary = "Analyze the given file contents and retrieve them as a string."
     )
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String analyzeFile(@RequestBody MultipartFile multipartFile) throws IOException, TesseractException {
+    public String analyzeFile(@RequestBody MultipartFile multipartFile) throws IOException, TikaException, SAXException {
         LOGGER.log(Level.INFO, "Analyzing {0}", multipartFile.getOriginalFilename());
-        return analyzeService.analyze(multipartFile.getOriginalFilename(), multipartFile.getInputStream());
+        return parser.parse(multipartFile.getInputStream(), new Metadata());
     }
 
     @ExceptionHandler({IOException.class})
@@ -43,8 +45,16 @@ public class OcrController {
             .body(new ApiError("File could not be processed, please try again later."));
     }
 
-    @ExceptionHandler({TesseractException.class})
-    public ResponseEntity<ApiError> handleTesseractException(TesseractException ex) {
+    @ExceptionHandler({TikaException.class})
+    public ResponseEntity<ApiError> handleTesseractException(TikaException ex) {
+        LOGGER.log(Level.SEVERE, null, ex);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ApiError(ex.getMessage()));
+    }
+
+    @ExceptionHandler({SAXException.class})
+    public ResponseEntity<ApiError> handleTesseractException(SAXException ex) {
         LOGGER.log(Level.SEVERE, null, ex);
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
