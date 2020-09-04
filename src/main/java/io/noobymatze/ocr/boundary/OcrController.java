@@ -34,7 +34,7 @@ public class OcrController {
     }
 
     @Operation(
-        summary = "Analyze the given file contents and retrieve them as a string."
+        summary = "Analyze the given file contents and retrieve them as an OcrResult."
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = OcrResult.class))),
