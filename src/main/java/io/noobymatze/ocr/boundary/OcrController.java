@@ -41,7 +41,7 @@ public class OcrController {
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public OcrResult analyzeFile(@RequestBody MultipartFile multipartFile) throws OcrParser.OcrException, IOException {
+    public OcrResult analyzeFile(@RequestParam("file") MultipartFile multipartFile) throws OcrParser.OcrException, IOException {
         LOGGER.log(Level.INFO, "Analyzing {0}", multipartFile.getOriginalFilename());
         final var result = parser.parse(multipartFile.getInputStream(), new Metadata());
         return new OcrResult(result);
